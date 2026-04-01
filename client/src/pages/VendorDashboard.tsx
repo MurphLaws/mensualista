@@ -1,26 +1,27 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useAuth } from "@/contexts/AuthContext";
-import { ShoppingBag } from "lucide-react";
+import { LayoutDashboard, Package, ShoppingBag, DollarSign, Key } from "lucide-react";
+import VendorOverview from "@/pages/vendor/VendorOverview";
+import VendorProducts from "@/pages/vendor/VendorProducts";
+import VendorSales from "@/pages/vendor/VendorSales";
+import VendorCommissions from "@/pages/vendor/VendorCommissions";
+import VendorCodes from "@/pages/vendor/VendorCodes";
+
+const NAV_ITEMS = [
+  { label: "Inicio", icon: LayoutDashboard, path: "/vendor" },
+  { label: "Productos", icon: Package, path: "/vendor/products" },
+  { label: "Ventas", icon: ShoppingBag, path: "/vendor/sales" },
+  { label: "Comisiones", icon: DollarSign, path: "/vendor/commissions" },
+  { label: "Codigos", icon: Key, path: "/vendor/codes" },
+];
+
+const ROUTES = [
+  { path: "", element: <VendorOverview /> },
+  { path: "products", element: <VendorProducts /> },
+  { path: "sales", element: <VendorSales /> },
+  { path: "commissions", element: <VendorCommissions /> },
+  { path: "codes", element: <VendorCodes /> },
+];
 
 export default function VendorDashboard() {
-  const { user } = useAuth();
-
-  return (
-    <DashboardLayout>
-      <div className="animate-fade-in space-y-6">
-        <h1 className="text-2xl font-bold">
-          Hola, {user?.full_name}
-        </h1>
-        <div className="rounded-xl border bg-card p-12 text-center space-y-4">
-          <ShoppingBag className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            Panel del Vendedor
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            No hay datos todavia. Cuando se configuren servicios y ventas, aparecerán aqui.
-          </p>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+  return <DashboardLayout navItems={NAV_ITEMS} routes={ROUTES} />;
 }

@@ -1,26 +1,33 @@
 import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { useAuth } from "@/contexts/AuthContext";
-import { Building2 } from "lucide-react";
+import { LayoutDashboard, Palette, Package, Users, TrendingUp, Key, Tag } from "lucide-react";
+import CompanyOverview from "@/pages/company/CompanyOverview";
+import CompanyBrand from "@/pages/company/CompanyBrand";
+import CompanyProducts from "@/pages/company/CompanyProducts";
+import CompanyVendors from "@/pages/company/CompanyVendors";
+import CompanySales from "@/pages/company/CompanySales";
+import CompanyCodes from "@/pages/company/CompanyCodes";
+import CompanyCoupons from "@/pages/company/CompanyCoupons";
+
+const NAV_ITEMS = [
+  { label: "Inicio", icon: LayoutDashboard, path: "/company" },
+  { label: "Marca", icon: Palette, path: "/company/brand" },
+  { label: "Productos", icon: Package, path: "/company/products" },
+  { label: "Vendedores", icon: Users, path: "/company/vendors" },
+  { label: "Ventas", icon: TrendingUp, path: "/company/sales" },
+  { label: "Codigos", icon: Key, path: "/company/codes" },
+  { label: "Cupones", icon: Tag, path: "/company/coupons" },
+];
+
+const ROUTES = [
+  { path: "", element: <CompanyOverview /> },
+  { path: "brand", element: <CompanyBrand /> },
+  { path: "products", element: <CompanyProducts /> },
+  { path: "vendors", element: <CompanyVendors /> },
+  { path: "sales", element: <CompanySales /> },
+  { path: "codes", element: <CompanyCodes /> },
+  { path: "coupons", element: <CompanyCoupons /> },
+];
 
 export default function CompanyDashboard() {
-  const { user } = useAuth();
-
-  return (
-    <DashboardLayout>
-      <div className="animate-fade-in space-y-6">
-        <h1 className="text-2xl font-bold">
-          Hola, {user?.full_name}
-        </h1>
-        <div className="rounded-xl border bg-card p-12 text-center space-y-4">
-          <Building2 className="h-12 w-12 mx-auto text-muted-foreground/40" />
-          <h2 className="text-lg font-semibold text-muted-foreground">
-            Panel de Empresa
-          </h2>
-          <p className="text-sm text-muted-foreground">
-            No hay datos todavia. Servicios, vendedores y ventas apareceran aqui.
-          </p>
-        </div>
-      </div>
-    </DashboardLayout>
-  );
+  return <DashboardLayout navItems={NAV_ITEMS} routes={ROUTES} />;
 }
