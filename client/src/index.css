@@ -48,3 +48,46 @@
     @apply font-bold tracking-tight;
   }
 }
+
+@layer components {
+  .card-premium {
+    @apply bg-card rounded-xl border border-border;
+    box-shadow: 0 1px 4px rgba(80,7,250,0.06);
+    transition: all 0.2s ease;
+  }
+  .card-premium:hover {
+    border-color: hsl(var(--primary));
+    box-shadow: 0 4px 16px rgba(80,7,250,0.1);
+  }
+  .stat-card {
+    @apply card-premium p-6;
+    border-top: 3px solid hsl(var(--primary));
+  }
+  .animate-fade-in { animation: fade-in 0.5s ease-out forwards; }
+  .animate-slide-in { animation: slide-in-right 0.4s ease-out forwards; }
+  .animate-float { animation: float 3s ease-in-out infinite; }
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.2s; }
+  .stagger-3 { animation-delay: 0.3s; }
+  .stagger-4 { animation-delay: 0.4s; }
+  .stagger-5 { animation-delay: 0.5s; }
+  .stagger-6 { animation-delay: 0.6s; }
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+@keyframes slide-in-right {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: #F4F0FA; border-radius: 9999px; }
+::-webkit-scrollbar-thumb { background: #D4C8E8; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #B0A8C0; }

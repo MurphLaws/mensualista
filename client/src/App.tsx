@@ -6,6 +6,7 @@ import Auth from "@/pages/Auth";
 import VendorDashboard from "@/pages/VendorDashboard";
 import AdminDashboard from "@/pages/AdminDashboard";
 import CompanyDashboard from "@/pages/CompanyDashboard";
+import Index from "@/pages/Index";
 import NotFound from "@/pages/NotFound";
 
 export default function App() {
@@ -14,6 +15,7 @@ export default function App() {
       <AuthProvider>
         <Toaster position="top-right" richColors />
         <Routes>
+          <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
           <Route
             path="/vendor"
@@ -39,7 +41,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-          <Route path="/" element={<Navigate to="/auth" replace />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </AuthProvider>
