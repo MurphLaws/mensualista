@@ -86,6 +86,5 @@ function DebugPanelInner() {
 }
 
 export default function DebugPanel() {
-  if (!import.meta.env.DEV) return null;
   return <DebugPanelInner />;
 }
