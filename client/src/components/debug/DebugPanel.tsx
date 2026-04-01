@@ -37,7 +37,7 @@ function DebugPanelInner() {
       {/* Trigger button */}
       <button
         onClick={() => setOpen(!open)}
-        className="fixed bottom-4 right-4 z-50 w-10 h-10 rounded-full flex items-center justify-center bg-foreground/80 text-white opacity-40 hover:opacity-100 transition-opacity"
+        className="fixed bottom-4 left-4 z-50 w-10 h-10 rounded-full flex items-center justify-center bg-foreground/80 text-white opacity-40 hover:opacity-100 transition-opacity"
       >
         <Bug className="h-4 w-4" />
       </button>
@@ -50,7 +50,7 @@ function DebugPanelInner() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="fixed bottom-16 right-4 z-50 bg-white rounded-xl shadow-2xl border p-4 w-64"
+            className="fixed bottom-16 left-4 z-50 bg-white rounded-xl shadow-2xl border p-4 w-64"
           >
             <p className="text-sm font-semibold mb-3">Debug Panel</p>
 
