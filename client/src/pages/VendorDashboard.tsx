@@ -1,18 +1,9 @@
-import { DashboardLayout } from "@/components/layout/DashboardLayout";
-import { LayoutDashboard, Package, ShoppingBag, DollarSign, Key } from "lucide-react";
+import { VendorLayout } from "@/components/vendor/VendorLayout";
 import VendorOverview from "@/pages/vendor/VendorOverview";
 import VendorProducts from "@/pages/vendor/VendorProducts";
 import VendorSales from "@/pages/vendor/VendorSales";
 import VendorCommissions from "@/pages/vendor/VendorCommissions";
 import VendorCodes from "@/pages/vendor/VendorCodes";
-
-const NAV_ITEMS = [
-  { label: "Inicio", icon: LayoutDashboard, path: "/vendor" },
-  { label: "Productos", icon: Package, path: "/vendor/products" },
-  { label: "Ventas", icon: ShoppingBag, path: "/vendor/sales" },
-  { label: "Comisiones", icon: DollarSign, path: "/vendor/commissions" },
-  { label: "Codigos", icon: Key, path: "/vendor/codes" },
-];
 
 const ROUTES = [
   { path: "", element: <VendorOverview /> },
@@ -23,5 +14,5 @@ const ROUTES = [
 ];
 
 export default function VendorDashboard() {
-  return <DashboardLayout navItems={NAV_ITEMS} routes={ROUTES} />;
+  return <VendorLayout routes={ROUTES} />;
 }

@@ -5,9 +5,12 @@ import express from "express";
 import cors from "cors";
 import path from "path";
 import { initDb } from "./db/init";
-import { seedUsers } from "./db/seed";
+import { seedUsers, seedData } from "./db/seed";
 import authRoutes from "./routes/auth";
 import healthRoutes from "./routes/health";
+import vendorRoutes from "./routes/vendor";
+import productRoutes from "./routes/products";
+import salesRoutes from "./routes/sales";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -17,6 +20,9 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/health", healthRoutes);
+app.use("/api/vendor", vendorRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/sales", salesRoutes);
 
 // In production, serve the built React client
 if (process.env.NODE_ENV === "production") {
@@ -31,6 +37,7 @@ async function start() {
   try {
     await initDb();
     await seedUsers();
+    await seedData();
     app.listen(PORT, () => {
       console.log(`Server running on port ${PORT}`);
     });
