@@ -163,4 +163,32 @@ export async function seedData() {
   }
 
   console.log("Seed data ready");
+
+  // Seed trainings
+  const trainings = [
+    { title: "Como vender planes mensuales", description: "Aprende las mejores tecnicas para cerrar ventas de planes mensuales", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", thumbnail_url: "https://picsum.photos/seed/train1/400/225", category: "Ventas" },
+    { title: "Guia de comisiones", description: "Entiende como funcionan las comisiones y como maximizar tus ganancias", type: "pdf", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", thumbnail_url: "https://picsum.photos/seed/train2/400/225", category: "Comisiones" },
+    { title: "Atencion al cliente", description: "Tecnicas de comunicacion efectiva con clientes potenciales", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", thumbnail_url: "https://picsum.photos/seed/train3/400/225", category: "Clientes" },
+    { title: "Plataforma Mensualista - Tutorial", description: "Aprende a usar todas las funcionalidades de la plataforma", type: "link", url: "https://mensualista.com/docs", thumbnail_url: "https://picsum.photos/seed/train4/400/225", category: "Plataforma" },
+    { title: "Estrategias de marketing digital", description: "Como usar redes sociales para atraer clientes", type: "video", url: "https://www.youtube.com/embed/dQw4w9WgXcQ", thumbnail_url: "https://picsum.photos/seed/train5/400/225", category: "Marketing" },
+    { title: "Manual del vendedor", description: "Guia completa con todas las politicas y procedimientos", type: "pdf", url: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", thumbnail_url: "https://picsum.photos/seed/train6/400/225", category: "General" },
+  ];
+
+  for (const t of trainings) {
+    await pool.query(
+      `INSERT INTO trainings (title, description, type, url, thumbnail_url, category)
+       SELECT $1, $2, $3, $4, $5, $6
+       WHERE NOT EXISTS (SELECT 1 FROM trainings WHERE title = $1)`,
+      [t.title, t.description, t.type, t.url, t.thumbnail_url, t.category]
+    );
+  }
+
+  // Link empresa user to first company
+  const firstCompany = await pool.query(`SELECT id FROM companies ORDER BY created_at LIMIT 1`);
+  if (firstCompany.rows.length > 0) {
+    await pool.query(
+      `UPDATE users SET company_id = $1 WHERE username = 'empresa' AND company_id IS NULL`,
+      [firstCompany.rows[0].id]
+    );
+  }
 }

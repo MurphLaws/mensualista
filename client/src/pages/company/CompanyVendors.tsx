@@ -1,84 +1,53 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Users, UserPlus } from "lucide-react";
-import { toast } from "sonner";
+import { Users } from "lucide-react";
 import { PageHeader } from "@/components/dashboard/PageHeader";
 import { DataTable } from "@/components/dashboard/DataTable";
-import { Modal } from "@/components/dashboard/Modal";
-import { Button } from "@/components/ui/button";
+import { api } from "@/lib/api";
+import { formatCOP } from "@/lib/utils";
+
+interface Vendor {
+  id: string;
+  full_name: string;
+  username: string;
+  total_sales: number;
+  total_commission: number;
+  created_at: string;
+}
 
 const COLUMNS = [
   { key: "nombre", header: "Nombre" },
-  { key: "email", header: "Email" },
-  { key: "estado", header: "Estado" },
+  { key: "username", header: "Username" },
   { key: "ventas", header: "Ventas" },
-  { key: "comision", header: "Comision" },
+  { key: "comision", header: "Comision Total" },
 ];
 
 export default function CompanyVendors() {
-  const [modalOpen, setModalOpen] = useState(false);
-  const [form, setForm] = useState({ nombre: "", email: "", mensaje: "" });
+  const [vendors, setVendors] = useState<Vendor[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSubmit = () => {
-    toast.info("Funcionalidad proximamente");
-    setModalOpen(false);
-  };
+  useEffect(() => {
+    api.get<{ vendors: Vendor[] }>("/api/company/vendors")
+      .then(data => setVendors(data.vendors))
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, []);
+
+  const tableData = vendors.map(v => ({
+    nombre: v.full_name || v.username,
+    username: v.username,
+    ventas: v.total_sales,
+    comision: formatCOP(v.total_commission),
+  }));
+
+  if (loading) {
+    return <div className="space-y-6"><PageHeader title="Vendedores" /><div className="h-48 bg-muted rounded-xl animate-pulse" /></div>;
+  }
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="space-y-6"
-    >
-      <PageHeader
-        title="Vendedores"
-        action={{ label: "Invitar Vendedor", icon: UserPlus, onClick: () => setModalOpen(true) }}
-      />
-
-      <DataTable
-        columns={COLUMNS}
-        data={[]}
-        emptyState={{
-          icon: Users,
-          title: "No hay vendedores",
-          description: "Invita a tu primer vendedor",
-        }}
-      />
-
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title="Invitar Vendedor">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Nombre</label>
-            <input
-              type="text"
-              value={form.nombre}
-              onChange={(e) => setForm((f) => ({ ...f, nombre: e.target.value }))}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Email</label>
-            <input
-              type="email"
-              value={form.email}
-              onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Mensaje</label>
-            <textarea
-              value={form.mensaje}
-              onChange={(e) => setForm((f) => ({ ...f, mensaje: e.target.value }))}
-              className="w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-              rows={3}
-            />
-          </div>
-          <Button onClick={handleSubmit} className="w-full">
-            Enviar Invitacion
-          </Button>
-        </div>
-      </Modal>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="space-y-6">
+      <PageHeader title="Vendedores" />
+      <DataTable columns={COLUMNS} data={tableData} emptyState={{ icon: Users, title: "No hay vendedores", description: "Los vendedores que vendan tus productos apareceran aqui" }} />
     </motion.div>
   );
 }

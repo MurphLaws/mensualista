@@ -1,13 +1,13 @@
 import { NavLink } from "react-router-dom";
-import { Home, Package, Users, DollarSign, User } from "lucide-react";
+import { Home, Package, GraduationCap, DollarSign, User } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { LucideIcon } from "lucide-react";
 
 const NAV_ITEMS: { label: string; icon: LucideIcon; path: string }[] = [
   { label: "Inicio", icon: Home, path: "/vendor" },
   { label: "Productos", icon: Package, path: "/vendor/products" },
-  { label: "Clientes", icon: Users, path: "/vendor/clients" },
   { label: "Ventas", icon: DollarSign, path: "/vendor/sales" },
+  { label: "Capacitaciones", icon: GraduationCap, path: "/vendor/trainings" },
   { label: "Perfil", icon: User, path: "/vendor/profile" },
 ];
 
@@ -22,10 +22,7 @@ export function BottomNav() {
             to={item.path}
             end={item.path === "/vendor"}
             className={({ isActive }) =>
-              cn(
-                "flex flex-col items-center gap-1 px-3 py-1 text-xs transition-colors",
-                isActive ? "text-primary font-medium" : "text-muted-foreground"
-              )
+              cn("flex flex-col items-center gap-1 px-3 py-1 text-xs transition-colors", isActive ? "text-primary font-medium" : "text-muted-foreground")
             }
           >
             <Icon className="h-5 w-5" />

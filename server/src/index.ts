@@ -11,6 +11,9 @@ import healthRoutes from "./routes/health";
 import vendorRoutes from "./routes/vendor";
 import productRoutes from "./routes/products";
 import salesRoutes from "./routes/sales";
+import adminRoutes from "./routes/admin";
+import companyRoutes from "./routes/company";
+import trainingRoutes from "./routes/trainings";
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +26,9 @@ app.use("/api/health", healthRoutes);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/sales", salesRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/company", companyRoutes);
+app.use("/api/trainings", trainingRoutes);
 
 // In production, serve the built React client
 if (process.env.NODE_ENV === "production") {

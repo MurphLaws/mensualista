@@ -7,20 +7,27 @@ const router = Router();
 // GET /api/sales
 router.get("/", authenticate, async (req, res) => {
   try {
-    const vendorId = req.user!.id;
+    const userId = req.user!.id;
     const role = req.user!.role;
 
     let query = `
-      SELECT s.*, p.name as product_name, c.name as company_name
+      SELECT s.*, p.name as product_name, c.name as company_name, u.full_name as vendor_name
       FROM sales s
       JOIN products p ON p.id = s.product_id
       JOIN companies c ON c.id = p.company_id
+      JOIN users u ON u.id = s.vendor_id
     `;
     const params: string[] = [];
 
     if (role === 'vendor') {
       query += ' WHERE s.vendor_id = $1';
-      params.push(vendorId);
+      params.push(userId);
+    } else if (role === 'company') {
+      const userResult = await pool.query("SELECT company_id FROM users WHERE id = $1", [userId]);
+      const companyId = userResult.rows[0]?.company_id;
+      if (!companyId) { res.json({ sales: [] }); return; }
+      query += ' WHERE p.company_id = $1';
+      params.push(companyId);
     }
 
     query += ' ORDER BY s.created_at DESC';

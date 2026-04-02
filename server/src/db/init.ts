@@ -81,5 +81,18 @@ export async function initDb() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(id);
   `);
 
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS trainings (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      title VARCHAR(255) NOT NULL,
+      description TEXT DEFAULT '',
+      type VARCHAR(10) NOT NULL CHECK (type IN ('video', 'pdf', 'link')),
+      url TEXT NOT NULL,
+      thumbnail_url TEXT,
+      category VARCHAR(100) DEFAULT 'General',
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
   console.log("Database initialized");
 }

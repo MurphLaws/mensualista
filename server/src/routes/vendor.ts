@@ -74,4 +74,78 @@ router.get("/products", authenticate, requireRole("vendor"), async (req, res) =>
   }
 });
 
+// GET /api/vendor/profile
+router.get("/profile", authenticate, requireRole("vendor"), async (req, res) => {
+  try {
+    const vendorId = req.user!.id;
+    const userResult = await pool.query(
+      "SELECT id, username, full_name, role, created_at FROM users WHERE id = $1",
+      [vendorId]
+    );
+
+    const statsResult = await pool.query(`
+      SELECT
+        COUNT(DISTINCT s.id) as total_sales,
+        COALESCE(SUM(c.amount), 0) as total_commissions
+      FROM sales s
+      LEFT JOIN commissions c ON c.sale_id = s.id
+      WHERE s.vendor_id = $1
+    `, [vendorId]);
+
+    res.json({
+      user: userResult.rows[0],
+      stats: {
+        total_sales: parseInt(statsResult.rows[0].total_sales),
+        total_commissions: parseInt(statsResult.rows[0].total_commissions),
+      }
+    });
+  } catch (err) {
+    console.error("Vendor profile error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/vendor/clients
+router.get("/clients", authenticate, requireRole("vendor"), async (req, res) => {
+  try {
+    const vendorId = req.user!.id;
+    const result = await pool.query(`
+      SELECT
+        customer_name, customer_email,
+        COUNT(*) as total_purchases,
+        SUM(amount) as total_spent,
+        MAX(created_at) as last_purchase
+      FROM sales
+      WHERE vendor_id = $1 AND customer_email IS NOT NULL
+      GROUP BY customer_email, customer_name
+      ORDER BY last_purchase DESC
+    `, [vendorId]);
+
+    res.json({ clients: result.rows });
+  } catch (err) {
+    console.error("Vendor clients error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// GET /api/vendor/commissions
+router.get("/commissions", authenticate, requireRole("vendor"), async (req, res) => {
+  try {
+    const vendorId = req.user!.id;
+    const result = await pool.query(`
+      SELECT c.*, s.customer_name, p.name as product_name
+      FROM commissions c
+      JOIN sales s ON s.id = c.sale_id
+      JOIN products p ON p.id = s.product_id
+      WHERE c.vendor_id = $1
+      ORDER BY c.created_at DESC
+    `, [vendorId]);
+
+    res.json({ commissions: result.rows });
+  } catch (err) {
+    console.error("Vendor commissions error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;
