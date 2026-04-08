@@ -148,4 +148,56 @@ router.get("/commissions", authenticate, requireRole("vendor"), async (req, res)
   }
 });
 
+// GET /api/vendor/chat - get messages grouped by company
+router.get("/chat", authenticate, requireRole("vendor"), async (req, res) => {
+  try {
+    const vendorId = req.user!.id;
+
+    const result = await pool.query(`
+      SELECT cm.id, cm.message, cm.created_at, cm.company_id,
+        c.name as company_name,
+        CASE WHEN cm.sender_id = $1 THEN 'vendor' ELSE 'company' END as "from"
+      FROM chat_messages cm
+      JOIN companies c ON c.id = cm.company_id
+      WHERE cm.sender_id = $1 OR cm.receiver_id = $1
+      ORDER BY cm.created_at ASC
+    `, [vendorId]);
+
+    res.json({ messages: result.rows });
+  } catch (err) {
+    console.error("Vendor chat error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+// POST /api/vendor/chat/:companyId - send message to company
+router.post("/chat/:companyId", authenticate, requireRole("vendor"), async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message?.trim()) { res.status(400).json({ error: "Message required" }); return; }
+
+    const vendorId = req.user!.id;
+    // Find the company owner user
+    const companyUser = await pool.query(
+      `SELECT id FROM users WHERE company_id = $1 AND role = 'company' LIMIT 1`,
+      [req.params.companyId]
+    );
+    if (companyUser.rows.length === 0) {
+      res.status(404).json({ error: "Company not found" });
+      return;
+    }
+
+    const result = await pool.query(`
+      INSERT INTO chat_messages (sender_id, receiver_id, company_id, message)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, message, created_at
+    `, [vendorId, companyUser.rows[0].id, req.params.companyId, message.trim()]);
+
+    res.status(201).json({ message: { ...result.rows[0], from: 'vendor' } });
+  } catch (err) {
+    console.error("Vendor send chat error:", err);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 export default router;

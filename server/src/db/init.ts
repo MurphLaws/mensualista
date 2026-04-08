@@ -81,6 +81,49 @@ export async function initDb() {
     ALTER TABLE users ADD COLUMN IF NOT EXISTS company_id UUID REFERENCES companies(id);
   `);
 
+  // Extended product fields for vendor product detail
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS target_audience TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS features TEXT[] DEFAULT '{}'`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS not_included TEXT[] DEFAULT '{}'`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS pitch_one_line TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS pitch_three_lines TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS objections JSONB DEFAULT '[]'`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS ideal_client TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS sales_material_urls TEXT[] DEFAULT '{}'`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS refund_window_days INTEGER DEFAULT 7`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS refund_auto BOOLEAN DEFAULT false`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS website_url TEXT DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS training_type VARCHAR(10) DEFAULT ''`);
+  await pool.query(`ALTER TABLE products ADD COLUMN IF NOT EXISTS training_duration_min INTEGER DEFAULT 0`);
+
+  // Chat messages table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS chat_messages (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      sender_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      receiver_id UUID REFERENCES users(id) ON DELETE CASCADE,
+      company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+      message TEXT NOT NULL,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
+  // Coupons table
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS coupons (
+      id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+      company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+      product_id UUID REFERENCES products(id) ON DELETE SET NULL,
+      code VARCHAR(50) NOT NULL,
+      discount_pct NUMERIC(5,2) NOT NULL,
+      max_uses INTEGER DEFAULT 0,
+      used_count INTEGER DEFAULT 0,
+      expires_at TIMESTAMPTZ,
+      is_active BOOLEAN DEFAULT true,
+      created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    );
+  `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS trainings (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),

@@ -63,7 +63,7 @@ router.post("/", authenticate, requireRole("company"), async (req, res) => {
   }
 });
 
-// GET /api/products/:id - single product with company info
+// GET /api/products/:id - single product with company info + vendor stats
 router.get("/:id", authenticate, async (req, res) => {
   try {
     const result = await pool.query(`
@@ -77,7 +77,42 @@ router.get("/:id", authenticate, async (req, res) => {
       res.status(404).json({ error: "Product not found" });
       return;
     }
-    res.json({ product: result.rows[0] });
+
+    const product = result.rows[0];
+
+    // If vendor, include their sales stats for this product
+    if (req.user!.role === "vendor") {
+      const statsResult = await pool.query(`
+        SELECT COUNT(*) as my_sales,
+          COALESCE(SUM(commission_amount), 0) as my_earned
+        FROM sales
+        WHERE vendor_id = $1 AND product_id = $2
+      `, [req.user!.id, req.params.id]);
+
+      product.my_sales = parseInt(statsResult.rows[0].my_sales);
+      product.my_earned = parseInt(statsResult.rows[0].my_earned);
+
+      // Check vendor_products status
+      const vpResult = await pool.query(
+        `SELECT status FROM vendor_products WHERE vendor_id = $1 AND product_id = $2`,
+        [req.user!.id, req.params.id]
+      );
+      product.vendor_status = vpResult.rows[0]?.status || "inactive";
+    }
+
+    // Get active coupons for this product
+    const couponsResult = await pool.query(`
+      SELECT id, code, discount_pct, max_uses, used_count, expires_at
+      FROM coupons
+      WHERE (product_id = $1 OR product_id IS NULL)
+        AND company_id = $2
+        AND is_active = true
+        AND (expires_at IS NULL OR expires_at > NOW())
+    `, [req.params.id, product.company_id]);
+
+    product.coupons = couponsResult.rows;
+
+    res.json({ product });
   } catch (err) {
     console.error("Product detail error:", err);
     res.status(500).json({ error: "Internal server error" });
