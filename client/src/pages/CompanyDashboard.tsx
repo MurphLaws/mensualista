@@ -3,6 +3,7 @@ import { LayoutDashboard, Package, TrendingUp, Users, MessageCircle, Settings, K
 import CompanyOverview from "@/pages/company/CompanyOverview";
 import CompanyBrand from "@/pages/company/CompanyBrand";
 import CompanyProducts from "@/pages/company/CompanyProducts";
+import CompanyProductDetail from "@/pages/company/CompanyProductDetail";
 import CompanyVendors from "@/pages/company/CompanyVendors";
 import CompanySales from "@/pages/company/CompanySales";
 import CompanyCodes from "@/pages/company/CompanyCodes";
@@ -24,6 +25,7 @@ const ROUTES = [
   { path: "", element: <CompanyOverview /> },
   { path: "brand", element: <CompanyBrand /> },
   { path: "products", element: <CompanyProducts /> },
+  { path: "products/:id", element: <CompanyProductDetail /> },
   { path: "vendors", element: <CompanyVendors /> },
   { path: "sales", element: <CompanySales /> },
   { path: "codes", element: <CompanyCodes /> },
